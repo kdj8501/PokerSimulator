@@ -64,6 +64,11 @@ public class Main extends JFrame implements ActionListener{
 		add(drawBtn);
 		add(resetBtn);
 		
+		JButton testBtn = new JButton("Test");
+		testBtn.setBounds(150, 80, 80, 40);
+		testBtn.addActionListener(this);
+		add(testBtn);
+		
 		setVisible(true);
 	}
 
@@ -78,8 +83,8 @@ public class Main extends JFrame implements ActionListener{
 				communityHand.setText(String.valueOf(community));
 				if (community.getSize() == 5)
 				{
-					Contested myContested = getContested(community, me);
-					Contested otherContested = getContested(community, other);
+					Contested myContested = Contested.getContested(community, me);
+					Contested otherContested = Contested.getContested(community, other);
 					if (myContested.compareTo(otherContested) == 1)
 						System.out.println("You Win!");
 					else if (myContested.compareTo(otherContested) == -1)
@@ -90,8 +95,7 @@ public class Main extends JFrame implements ActionListener{
 			}
 		}
 		else if (actionCmd.equals("Reset"))
-		{
-			
+		{	
 			deck.resetDeck();
 			community.reset();
 			me = new Player(deck.drawCard(), deck.drawCard());
@@ -101,11 +105,35 @@ public class Main extends JFrame implements ActionListener{
 			otherHand.setText(String.valueOf(other));
 			communityHand.setText(String.valueOf(community));
 		}
+		else if (actionCmd.equals("Test"))
+		{
+			long win = 0, lose = 0;
+			double winrate;
+			Community tmpCom = new Community();
+			for (int m = 0; m < 44; m++)
+				for (int n = m + 1; n < 45; n++)
+					for (int a = n + 1; a < 46; a++)
+						for (int b = a + 1; b < 47; b++)
+							for (int c = b + 1; c < 48; c++)
+							{
+								tmpCom.addCard(deck.get(m));
+								tmpCom.addCard(deck.get(n));
+								tmpCom.addCard(deck.get(a));
+								tmpCom.addCard(deck.get(b));
+								tmpCom.addCard(deck.get(c));
+								if (testContested(tmpCom, me).compareTo(testContested(tmpCom, other)) >= 0)
+									win++;
+								else
+									lose++;
+								tmpCom.reset();
+							}
+			winrate = (double)win / (win + lose);
+			System.out.println(winrate * 100 + "%");
+		}
 	}
 	
-	public Contested getContested(Community com, Player pl)
+	public Contested testContested(Community com, Player pl)
 	{
-		int score = 0;
 		int high = 0;
 		int tHigh = 0;
 		int p1High = 0;
@@ -460,79 +488,64 @@ public class Main extends JFrame implements ActionListener{
 			}
 		}
 		
-		System.out.println(me + " with community: " + community);
 		int rank = Contested.HIGH_CARD;
 		if (royalStraightFlush)
 		{
-			System.out.println("Royal Straight Flush!");
 			p1High = high;
 			p2High = 0;
 			rank = Contested.ROYAL_STRAIGHT_FLUSH;
 		}
 		else if (straightFlush)
 		{
-			System.out.println("Straight Flush! with " + high);
 			p1High = high;
 			p2High = 0;
 			rank = Contested.STRAIGHT_FLUSH;
 		}
 		else if (fourCard)
 		{
-			System.out.println("Four Card! with " + high);
 			p1High = high;
 			p2High = valid.get(valid.size() - 1).getNumber();
 			rank = Contested.FOUR_CARD;
 		}
 		else if (fullHouse)
 		{
-			System.out.println("Full House! with " + tHigh + " & " + p1High);
 			p1High = tHigh;
 			p2High = p1High;
 			rank = Contested.FULL_HOUSE;
 		}
 		else if (flush)
 		{
-			System.out.println("Flush! with " + high);
 			p1High = high;
 			p2High = 0;
 			rank = Contested.FLUSH;
 		}
 		else if (straight)
 		{
-			System.out.println("Straight! with " + stHigh);
 			p1High = stHigh;
 			p2High = 0;
 			rank = Contested.STRAIGHT;
 		}
 		else if (triple)
 		{
-			System.out.println("Triple! with " + tHigh);
 			p1High = tHigh;
 			p2High = 0;
 			rank = Contested.TRIPLE;
 		}
 		else if (twoPair)
 		{
-			System.out.println("Two Pair! with " + p1High + " & " + p2High);
 			rank = Contested.TWO_PAIR;
 		}
 		else if (pair)
 		{
-			System.out.println("Pair! with " + p1High);
 			p2High = 0;
 			rank = Contested.PAIR;
 		}
 		else
 		{
-			System.out.println("High Card with " + high);
 			p1High = high;
 			p2High = 0;
 			rank = Contested.HIGH_CARD;
 		}
-		
-		System.out.println("Valid Cards");
-		for (Card x : valid)
-			System.out.println(x);
 		
 		return new Contested(rank, p1High, p2High, valid);
 	}

@@ -36,4 +36,9 @@ public class Deck {
 		deck.remove(deck.size() - 1);
 		return tmp;
 	}
+	
+	public Card get(int idx)
+	{
+		return deck.get(idx);
+	}
 }
